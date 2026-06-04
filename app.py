@@ -156,6 +156,7 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    constituencies = Constituency.query.order_by(Constituency.name).all()
     if request.method == 'POST':
         voter_id = request.form.get('voter_id', '').strip().upper()
         dob_str  = request.form.get('dob', '')
@@ -163,34 +164,44 @@ def register():
         password = request.form.get('password', '')
         confirm  = request.form.get('confirm_password', '')
 
+        # Retrieve new fields
+        full_name = request.form.get('full_name', '').strip()
+        gender = request.form.get('gender', 'Male')
+        constituency_id = request.form.get('constituency_id', type=int)
+        address = request.form.get('address', '').strip()
+
         if password != confirm:
             flash('Passwords do not match.', 'danger')
-            return render_template('register.html')
+            return render_template('register.html', constituencies=constituencies)
 
         if User.query.filter_by(email=email).first():
             flash('Email already registered.', 'danger')
-            return render_template('register.html')
+            return render_template('register.html', constituencies=constituencies)
 
         try:
             dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid date of birth.', 'danger')
-            return render_template('register.html')
+            return render_template('register.html', constituencies=constituencies)
 
-        # Verify against government voter registry
-        registry = VoterRegistry.query.filter_by(
-            voter_id_number=voter_id,
-            date_of_birth=dob,
-            is_active=True
-        ).first()
-
+        # Look up or create registry entry dynamically
+        registry = VoterRegistry.query.filter_by(voter_id_number=voter_id).first()
         if not registry:
-            flash('Voter ID / Date of Birth not found in the voter registry.', 'danger')
-            return render_template('register.html')
+            registry = VoterRegistry(
+                voter_id_number=voter_id,
+                full_name=full_name,
+                date_of_birth=dob,
+                constituency_id=constituency_id,
+                gender=gender,
+                address=address,
+                is_active=True
+            )
+            db.session.add(registry)
+            db.session.flush()
 
         if registry.user_account:
             flash('This Voter ID is already linked to an account.', 'danger')
-            return render_template('register.html')
+            return render_template('register.html', constituencies=constituencies)
 
         user = User(voter_registry_id=registry.id, email=email)
         user.set_password(password)
@@ -201,7 +212,7 @@ def register():
         flash('Registration submitted! Please wait for officer approval.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('register.html')
+    return render_template('register.html', constituencies=constituencies)
 
 
 @app.route('/logout')

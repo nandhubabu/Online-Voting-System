@@ -26,7 +26,7 @@
   <div class="auth-right">
     <div class="auth-box">
       <div class="auth-box-title">Create Account</div>
-      <div class="auth-box-sub">Voter registration — must match government records</div>
+      <div class="auth-box-sub">Voter registration — pending officer approval</div>
 
       <form method="POST" action="{{ url_for('register') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -39,8 +39,38 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-input"
+                 placeholder="Enter your full name" required>
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Date of Birth</label>
           <input type="date" name="dob" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select name="gender" class="form-input" required style="background: var(--surface-1); color: var(--text-base);">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Constituency</label>
+          <select name="constituency_id" class="form-input" required style="background: var(--surface-1); color: var(--text-base);">
+            <option value="" disabled selected>Select your Constituency</option>
+            {% for c in constituencies %}
+              <option value="{{ c.id }}">{{ c.name }} ({{ c.district }}, {{ c.state }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Residential Address</label>
+          <textarea name="address" class="form-input" rows="2" placeholder="Enter your address" required style="resize: vertical; font-family: inherit;"></textarea>
         </div>
 
         <div class="form-group">
