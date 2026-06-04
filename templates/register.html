@@ -51,7 +51,7 @@
 
         <div class="form-group">
           <label class="form-label">Gender</label>
-          <select name="gender" class="form-input" required style="background: var(--surface-1); color: var(--text-base);">
+          <select name="gender" class="form-select" required>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
@@ -61,7 +61,7 @@
         {% if states %}
         <div class="form-group">
           <label class="form-label">State</label>
-          <select id="state_select" class="form-input" required style="background: var(--surface-1); color: var(--text-base);">
+          <select id="state_select" class="form-select" required>
             <option value="" disabled selected>Select your State</option>
             {% for state in states %}
               <option value="{{ state }}">{{ state }}</option>
@@ -71,7 +71,7 @@
 
         <div class="form-group">
           <label class="form-label">Constituency</label>
-          <select id="constituency_select" name="constituency_id" class="form-input" required style="background: var(--surface-1); color: var(--text-base);" disabled>
+          <select id="constituency_select" name="constituency_id" class="form-select" required disabled>
             <option value="" disabled selected>Select your Constituency</option>
             {% for c in constituencies %}
               <option value="{{ c.id }}" data-state="{{ c.state }}">{{ c.name }} ({{ c.district }})</option>

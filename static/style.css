@@ -322,6 +322,13 @@ a:hover { color: var(--text); }
   padding-right: 32px;
 }
 
+/* Fix for dark-mode select option contrast issues on Windows/Chrome */
+select option,
+.form-select option {
+  background-color: #1F1F26; /* matches var(--surface-2) */
+  color: #F9F9FB;            /* matches var(--text) */
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════
    TABLE
