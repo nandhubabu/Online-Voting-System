@@ -156,7 +156,10 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    states_query = db.session.query(Constituency.state).distinct().order_by(Constituency.state).all()
+    states = [s[0] for s in states_query]
     constituencies = Constituency.query.order_by(Constituency.name).all()
+    
     if request.method == 'POST':
         voter_id = request.form.get('voter_id', '').strip().upper()
         dob_str  = request.form.get('dob', '')
@@ -172,17 +175,17 @@ def register():
 
         if password != confirm:
             flash('Passwords do not match.', 'danger')
-            return render_template('register.html', constituencies=constituencies)
+            return render_template('register.html', constituencies=constituencies, states=states)
 
         if User.query.filter_by(email=email).first():
             flash('Email already registered.', 'danger')
-            return render_template('register.html', constituencies=constituencies)
+            return render_template('register.html', constituencies=constituencies, states=states)
 
         try:
             dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
         except ValueError:
             flash('Invalid date of birth.', 'danger')
-            return render_template('register.html', constituencies=constituencies)
+            return render_template('register.html', constituencies=constituencies, states=states)
 
         # Look up or create registry entry dynamically
         registry = VoterRegistry.query.filter_by(voter_id_number=voter_id).first()
@@ -201,7 +204,7 @@ def register():
 
         if registry.user_account:
             flash('This Voter ID is already linked to an account.', 'danger')
-            return render_template('register.html', constituencies=constituencies)
+            return render_template('register.html', constituencies=constituencies, states=states)
 
         user = User(voter_registry_id=registry.id, email=email)
         user.set_password(password)
@@ -212,7 +215,7 @@ def register():
         flash('Registration submitted! Please wait for officer approval.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('register.html', constituencies=constituencies)
+    return render_template('register.html', constituencies=constituencies, states=states)
 
 
 @app.route('/logout')

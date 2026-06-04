@@ -59,11 +59,21 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">State</label>
+          <select id="state_select" class="form-input" required style="background: var(--surface-1); color: var(--text-base);">
+            <option value="" disabled selected>Select your State</option>
+            {% for state in states %}
+              <option value="{{ state }}">{{ state }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Constituency</label>
-          <select name="constituency_id" class="form-input" required style="background: var(--surface-1); color: var(--text-base);">
+          <select id="constituency_select" name="constituency_id" class="form-input" required style="background: var(--surface-1); color: var(--text-base);" disabled>
             <option value="" disabled selected>Select your Constituency</option>
             {% for c in constituencies %}
-              <option value="{{ c.id }}">{{ c.name }} ({{ c.district }}, {{ c.state }})</option>
+              <option value="{{ c.id }}" data-state="{{ c.state }}">{{ c.name }} ({{ c.district }})</option>
             {% endfor %}
           </select>
         </div>
@@ -100,4 +110,33 @@
   </div>
 
 </div>
+
+<script>
+  const stateSelect = document.getElementById('state_select');
+  const constSelect = document.getElementById('constituency_select');
+  
+  // Keep a copy of all original constituency options
+  const originalOptions = Array.from(constSelect.options).filter(opt => opt.value !== "");
+
+  stateSelect.addEventListener('change', function() {
+    const selectedState = this.value;
+    
+    // Enable constituency select
+    constSelect.disabled = false;
+    
+    // Clear existing options except the placeholder
+    constSelect.innerHTML = '<option value="" disabled selected>Select your Constituency</option>';
+    
+    // Add matching options
+    originalOptions.forEach(opt => {
+      if (opt.getAttribute('data-state') === selectedState) {
+        const newOpt = document.createElement('option');
+        newOpt.value = opt.value;
+        newOpt.textContent = opt.textContent;
+        newOpt.setAttribute('data-state', selectedState);
+        constSelect.appendChild(newOpt);
+      }
+    });
+  });
+</script>
 {% endblock %}
