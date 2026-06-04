@@ -105,6 +105,62 @@
 
   </div>
 
+  <!-- Pending Registrations -->
+  <div class="card" style="margin-bottom:1rem;">
+    <div class="card-hd">
+      <div>
+        <div class="card-lbl">Registration Queue</div>
+        <div class="card-title">Pending Voter Approvals</div>
+      </div>
+      {% if pending_voters %}
+        <span class="badge b-pending">{{ pending_voters|length }} pending</span>
+      {% endif %}
+    </div>
+
+    {% if pending_voters %}
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Voter ID</th><th>Email</th>
+            <th>Constituency</th><th>State</th><th>Submitted</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in pending_voters %}
+          <tr>
+            <td><strong>{{ v.full_name }}</strong></td>
+            <td><code style="font-size:.78rem;color:var(--text-muted);">{{ v.registry.voter_id_number }}</code></td>
+            <td style="font-size:.82rem;">{{ v.email }}</td>
+            <td>{{ v.registry.constituency.name }}</td>
+            <td>{{ v.registry.constituency.state }}</td>
+            <td style="font-size:.78rem;color:var(--text-muted);">{{ v.created_at.strftime('%d %b %Y') }}</td>
+            <td>
+              <div style="display:flex;gap:5px;">
+                <form method="POST" action="{{ url_for('admin_review_voter', user_id=v.id, action='approve') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ok btn-sm">Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin_review_voter', user_id=v.id, action='reject') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-bad btn-sm">Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty" style="padding:2rem;">
+      <div class="empty-icon">✅</div>
+      <div class="empty-title">All caught up!</div>
+      <div class="empty-sub">No pending voter registrations.</div>
+    </div>
+    {% endif %}
+  </div>
+
   <!-- Audit Log -->
   <div class="card">
     <div class="card-hd">

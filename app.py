@@ -393,8 +393,25 @@ def admin_dashboard():
     }
     elections = Election.query.order_by(Election.created_at.desc()).limit(5).all()
     logs      = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(10).all()
+    pending_voters = User.query.filter_by(account_status='pending').join(VoterRegistry).all()
     return render_template('admin_dashboard.html',
-                           stats=stats, elections=elections, logs=logs)
+                           stats=stats, elections=elections, logs=logs,
+                           pending_voters=pending_voters)
+
+
+@app.route('/admin/voter/<int:user_id>/<action>', methods=['POST'])
+@login_required
+@admin_required
+def admin_review_voter(user_id, action):
+    user = User.query.get_or_404(user_id)
+    status_map = {'approve': 'approved', 'reject': 'rejected', 'suspend': 'suspended'}
+    if action in status_map:
+        user.account_status = status_map[action]
+        db.session.commit()
+        log_action('admin', current_user.id,
+                   f'Voter {action.title()}d (Admin)', f'User ID {user_id}')
+        flash(f'{user.full_name} has been {action}d.', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 
 # ── Elections ─────────────────────────────────────────────────────────────────
