@@ -534,10 +534,20 @@ def manage_candidates(eid):
 @admin_required
 def admin_constituencies():
     if request.method == 'POST':
+        name = request.form['name'].strip()
+        district = request.form['district'].strip()
+        state = request.form['state'].strip()
+
+        # Check if constituency name already exists (case-insensitive)
+        existing = Constituency.query.filter(db.func.lower(Constituency.name) == name.lower()).first()
+        if existing:
+            flash(f'Constituency "{name}" already exists!', 'danger')
+            return redirect(url_for('admin_constituencies'))
+
         c = Constituency(
-            name=request.form['name'],
-            district=request.form['district'],
-            state=request.form['state']
+            name=name,
+            district=district,
+            state=state
         )
         db.session.add(c)
         db.session.commit()
@@ -554,10 +564,20 @@ def admin_constituencies():
 @admin_required
 def admin_parties():
     if request.method == 'POST':
+        party_name = request.form['party_name'].strip()
+        symbol = request.form.get('symbol', '').strip()
+        description = request.form.get('description', '').strip()
+
+        # Check if party name already exists
+        existing = Party.query.filter(db.func.lower(Party.party_name) == party_name.lower()).first()
+        if existing:
+            flash(f'Party "{party_name}" already exists!', 'danger')
+            return redirect(url_for('admin_parties'))
+
         p = Party(
-            party_name=request.form['party_name'],
-            symbol=request.form.get('symbol', ''),
-            description=request.form.get('description', '')
+            party_name=party_name,
+            symbol=symbol,
+            description=description
         )
         db.session.add(p)
         db.session.commit()
@@ -575,12 +595,23 @@ def admin_parties():
 def admin_officers():
     constituencies = Constituency.query.all()
     if request.method == 'POST':
+        name = request.form['name'].strip()
+        email = request.form['email'].strip().lower()
+        password = request.form['password']
+        constituency_id = int(request.form['constituency_id']) if request.form.get('constituency_id') else None
+
+        # Check if officer email already exists
+        existing = ElectionOfficer.query.filter_by(email=email).first()
+        if existing:
+            flash(f'Election Officer email "{email}" already registered!', 'danger')
+            return redirect(url_for('admin_officers'))
+
         o = ElectionOfficer(
-            name=request.form['name'],
-            email=request.form['email'],
-            constituency_id=int(request.form['constituency_id']) if request.form.get('constituency_id') else None
+            name=name,
+            email=email,
+            constituency_id=constituency_id
         )
-        o.set_password(request.form['password'])
+        o.set_password(password)
         db.session.add(o)
         db.session.commit()
         log_action('admin', current_user.id, 'Officer Created', o.email)
