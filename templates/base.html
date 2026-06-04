@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ElectVote — Secure Online Voting System">
+  <title>{% block title %}ElectVote{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  {% if current_user.is_authenticated %}
+  <nav class="navbar">
+    <span class="brand"><span class="brand-dot"></span>ElectVote</span>
+    <ul class="nav-links">
+      {% set role = session.get('role') %}
+
+      {% if role == 'voter' %}
+        <li><a href="{{ url_for('voter_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('voter_profile') }}">Profile</a></li>
+
+      {% elif role == 'officer' %}
+        <li><a href="{{ url_for('officer_dashboard') }}">Dashboard</a></li>
+
+      {% elif role == 'admin' %}
+        <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('admin_elections') }}">Elections</a></li>
+        <li><a href="{{ url_for('admin_constituencies') }}">Constituencies</a></li>
+        <li><a href="{{ url_for('admin_parties') }}">Parties</a></li>
+        <li><a href="{{ url_for('admin_officers') }}">Officers</a></li>
+        <li><a href="{{ url_for('audit_logs') }}">Audit Logs</a></li>
+      {% endif %}
+
+      <li>
+        <a href="{{ url_for('logout') }}">
+          <button class="btn-nav-logout">Sign out</button>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes">
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>

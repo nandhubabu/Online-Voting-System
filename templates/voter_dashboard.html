@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page">
+
+  <div class="page-head">
+    <div class="page-title">Welcome, {{ current_user.full_name }}</div>
+    <div class="page-sub">{{ current_user.registry.constituency.name }} Constituency</div>
+  </div>
+
+  <div class="bento">
+
+    <!-- Profile card -->
+    <div class="card c-3">
+      <div class="card-lbl">Your Profile</div>
+      <div style="margin-top:1rem;">
+        <div style="width:44px;height:44px;background:var(--accent-glow);border:1px solid rgba(109,40,217,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:.75rem;">🗳</div>
+        <div style="font-weight:600;font-size:.92rem;">{{ current_user.full_name }}</div>
+        <div style="font-size:.76rem;color:var(--text-muted);margin-top:2px;">{{ current_user.email }}</div>
+        <div style="margin-top:1rem;">
+          <div class="info-item"><span class="info-k">Voter ID</span><span class="info-v" style="font-size:.82rem;font-family:monospace;">{{ current_user.registry.voter_id_number }}</span></div>
+          <div class="info-item"><span class="info-k">Constituency</span><span class="info-v" style="font-size:.82rem;">{{ current_user.registry.constituency.name }}</span></div>
+          <div class="info-item"><span class="info-k">Status</span><span class="badge b-approved">Active</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="c-9" style="display:flex;flex-direction:column;gap:1rem;">
+
+      <!-- Stats row -->
+      <div class="bento">
+        <div class="card c-4">
+          <div class="card-lbl">Elections</div>
+          <div class="stat-num">{{ elections|length }}</div>
+          <div class="stat-desc">In your constituency</div>
+        </div>
+        <div class="card c-4">
+          <div class="card-lbl">Votes Cast</div>
+          <div class="stat-num">{{ voted_ids|length }}</div>
+          <div class="stat-desc">Participated</div>
+        </div>
+        <div class="card c-4">
+          <div class="card-lbl">Active Now</div>
+          <div class="stat-num" style="color:var(--accent-hover);">
+            {{ elections | selectattr('is_currently_active') | list | length }}
+          </div>
+          <div class="stat-desc">Open for voting</div>
+        </div>
+      </div>
+
+      <!-- Election list -->
+      <div class="card">
+        <div class="card-hd">
+          <div>
+            <div class="card-lbl">Your Ballot</div>
+            <div class="card-title">Available Elections</div>
+          </div>
+        </div>
+
+        {% if elections %}
+          {% for e in elections %}
+          <div class="el-card">
+            <div>
+              <div class="el-type">{{ e.election_type }}</div>
+              <div class="el-name">{{ e.election_name }}</div>
+              <div class="el-dates">
+                {{ e.start_datetime.strftime('%d %b %Y, %H:%M') }} →
+                {{ e.end_datetime.strftime('%d %b %Y, %H:%M') }}
+              </div>
+            </div>
+            <div class="el-actions">
+              <span class="badge b-{{ e.status|lower }}">{{ e.status }}</span>
+              {% if e.id in voted_ids %}
+                <span class="badge b-approved">✓ Voted</span>
+              {% elif e.is_currently_active %}
+                <a href="{{ url_for('cast_vote', election_id=e.id) }}"
+                   class="btn btn-primary btn-sm">Vote Now</a>
+              {% elif e.status == 'Published' %}
+                <a href="{{ url_for('election_results', election_id=e.id) }}"
+                   class="btn btn-ghost btn-sm">Results</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty">
+            <div class="empty-icon">🗳️</div>
+            <div class="empty-title">No elections available</div>
+            <div class="empty-sub">No elections scheduled for your constituency yet.</div>
+          </div>
+        {% endif %}
+      </div>
+
+    </div><!-- /c-9 -->
+
+  </div><!-- /bento -->
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div class="page-title">Audit Logs</div>
+    <div class="page-sub">System activity — last 200 entries</div>
+  </div>
+
+  <div class="card">
+    {% if logs %}
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Timestamp</th><th>Role</th><th>Actor ID</th><th>Action</th><th>Details</th></tr>
+        </thead>
+        <tbody>
+          {% for l in logs %}
+          <tr>
+            <td style="font-size:.78rem;color:var(--text-muted);white-space:nowrap;">
+              {{ l.timestamp.strftime('%d %b %Y, %H:%M:%S') }}
+            </td>
+            <td>
+              <span class="badge b-{{ 'active' if l.actor_type=='admin' else ('approved' if l.actor_type=='officer' else 'pending') }}">
+                {{ l.actor_type }}
+              </span>
+            </td>
+            <td style="font-size:.82rem;color:var(--text-muted);">{{ l.actor_id }}</td>
+            <td style="font-weight:500;font-size:.84rem;">{{ l.action }}</td>
+            <td style="font-size:.8rem;color:var(--text-muted);">{{ l.details }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No audit logs yet.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

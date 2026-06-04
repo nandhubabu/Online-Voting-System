@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Candidates — {{ election.election_name }}{% endblock %}
+
+{% block content %}
+<div class="page">
+
+  <a href="{{ url_for('admin_elections') }}" class="btn btn-ghost btn-sm"
+     style="margin-bottom:1.5rem;">← Back to Elections</a>
+
+  <div class="page-head">
+    <div class="page-title">Manage Candidates</div>
+    <div class="page-sub">{{ election.election_name }} · {{ election.constituency.name }}</div>
+  </div>
+
+  <div class="bento">
+
+    <!-- Add Candidate Form -->
+    <div class="card c-4">
+      <div class="card-lbl" style="margin-bottom:1.2rem;">Add Candidate</div>
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-input"
+                 placeholder="Candidate full name" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Political Party</label>
+          <select name="party_id" class="form-select">
+            <option value="">Independent</option>
+            {% for p in parties %}
+            <option value="{{ p.id }}">{{ p.party_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Add Candidate</button>
+      </form>
+    </div>
+
+    <!-- Candidates List -->
+    <div class="card c-8">
+      <div class="card-hd">
+        <div>
+          <div class="card-lbl">Candidate List</div>
+          <div class="card-title">{{ candidates|length }} Candidate(s)</div>
+        </div>
+      </div>
+
+      {% if candidates %}
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Party</th><th>Status</th><th>Votes</th></tr>
+          </thead>
+          <tbody>
+            {% for c in candidates %}
+            <tr>
+              <td><strong>{{ c.full_name }}</strong></td>
+              <td style="font-size:.82rem;color:var(--text-muted);">
+                {{ c.party.party_name if c.party else 'Independent' }}
+              </td>
+              <td><span class="badge b-{{ c.candidate_status|lower }}">{{ c.candidate_status }}</span></td>
+              <td style="font-weight:600;">{{ c.vote_count }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty">
+        <div class="empty-icon">👤</div>
+        <div class="empty-title">No candidates yet</div>
+        <div class="empty-sub">Add candidates using the form on the left.</div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

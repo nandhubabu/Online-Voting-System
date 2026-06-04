@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Parties — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head"><div class="page-title">Political Parties</div></div>
+
+  <div class="bento">
+
+    <div class="card c-4">
+      <div class="card-lbl" style="margin-bottom:1.2rem;">Add Party</div>
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label class="form-label">Party Name</label>
+          <input type="text" name="party_name" class="form-input" placeholder="e.g. Indian National Congress" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Symbol / Abbreviation</label>
+          <input type="text" name="symbol" class="form-input" placeholder="e.g. INC">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input type="text" name="description" class="form-input" placeholder="Short description">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Add Party</button>
+      </form>
+    </div>
+
+    <div class="card c-8">
+      <div class="card-lbl" style="margin-bottom:1.2rem;">All Parties</div>
+      {% if parties %}
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Party Name</th><th>Symbol</th><th>Description</th></tr></thead>
+          <tbody>
+            {% for p in parties %}
+            <tr>
+              <td style="color:var(--text-muted);font-size:.8rem;">{{ p.id }}</td>
+              <td><strong>{{ p.party_name }}</strong></td>
+              <td style="font-size:.85rem;color:var(--text-muted);">{{ p.symbol or '—' }}</td>
+              <td style="font-size:.82rem;color:var(--text-muted);">{{ p.description or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty"><div class="empty-title">No parties yet.</div></div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

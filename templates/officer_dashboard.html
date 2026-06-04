@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Officer Dashboard — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page">
+
+  <div class="page-head">
+    <div class="page-title">Officer Dashboard</div>
+    <div class="page-sub">
+      {{ current_user.name }}
+      {% if current_user.constituency %}· {{ current_user.constituency.name }}{% endif %}
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="bento" style="margin-bottom:1rem;">
+    <div class="card c-4">
+      <div class="card-lbl">Pending Registrations</div>
+      <div class="stat-num" style="color:var(--warning);">{{ pending|length }}</div>
+      <div class="stat-desc">Awaiting your review</div>
+    </div>
+    <div class="card c-4">
+      <div class="card-lbl">Approved Voters</div>
+      <div class="stat-num" style="color:var(--success);">{{ approved|length }}</div>
+      <div class="stat-desc">Active accounts</div>
+    </div>
+    <div class="card c-4">
+      <div class="card-lbl">Pending Candidates</div>
+      <div class="stat-num">{{ pending_candidates|length }}</div>
+      <div class="stat-desc">Awaiting candidate review</div>
+    </div>
+  </div>
+
+  <!-- Pending Registrations + Candidates -->
+  <div class="bento" style="margin-bottom:1rem;">
+
+    <div class="card c-8">
+      <div class="card-hd">
+        <div>
+          <div class="card-lbl">Registration Queue</div>
+          <div class="card-title">Pending Approvals</div>
+        </div>
+        {% if pending %}
+          <span class="badge b-pending">{{ pending|length }} pending</span>
+        {% endif %}
+      </div>
+
+      {% if pending %}
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Voter ID</th><th>Email</th>
+              <th>Constituency</th><th>Submitted</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in pending %}
+            <tr>
+              <td><strong>{{ v.full_name }}</strong></td>
+              <td><code style="font-size:.78rem;color:var(--text-muted);">{{ v.registry.voter_id_number }}</code></td>
+              <td style="font-size:.82rem;">{{ v.email }}</td>
+              <td>{{ v.registry.constituency.name }}</td>
+              <td style="font-size:.78rem;color:var(--text-muted);">{{ v.created_at.strftime('%d %b %Y') }}</td>
+              <td>
+                <div style="display:flex;gap:5px;">
+                  <form method="POST" action="{{ url_for('review_voter', user_id=v.id, action='approve') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-ok btn-sm">Approve</button>
+                  </form>
+                  <form method="POST" action="{{ url_for('review_voter', user_id=v.id, action='reject') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-bad btn-sm">Reject</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty" style="padding:2rem;">
+        <div class="empty-icon">✅</div>
+        <div class="empty-title">All caught up!</div>
+        <div class="empty-sub">No pending registrations.</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Candidate Review -->
+    <div class="card c-4">
+      <div class="card-lbl" style="margin-bottom:1rem;">Candidate Review</div>
+      {% if pending_candidates %}
+        {% for c in pending_candidates %}
+        <div style="padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;">
+          <div style="font-weight:600;font-size:.88rem;">{{ c.full_name }}</div>
+          <div style="font-size:.76rem;color:var(--text-muted);margin-bottom:7px;">
+            {{ c.party.party_name if c.party else 'Independent' }} · {{ c.election.election_name }}
+          </div>
+          <div style="display:flex;gap:5px;">
+            <form method="POST" action="{{ url_for('review_candidate', cid=c.id, action='approve') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-ok btn-sm">Approve</button>
+            </form>
+            <form method="POST" action="{{ url_for('review_candidate', cid=c.id, action='reject') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-bad btn-sm">Reject</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty" style="padding:1.5rem;">
+        <div class="empty-icon">👤</div>
+        <div class="empty-sub">No pending candidates.</div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Approved Voters Table -->
+  <div class="card">
+    <div class="card-hd">
+      <div>
+        <div class="card-lbl">Voter List</div>
+        <div class="card-title">Approved Voters</div>
+      </div>
+      <span class="badge b-approved">{{ approved|length }} total</span>
+    </div>
+    {% if approved %}
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Voter ID</th><th>Email</th><th>DOB</th><th>Gender</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for v in approved %}
+          <tr>
+            <td><strong>{{ v.full_name }}</strong></td>
+            <td><code style="font-size:.78rem;color:var(--text-muted);">{{ v.registry.voter_id_number }}</code></td>
+            <td style="font-size:.82rem;">{{ v.email }}</td>
+            <td style="font-size:.82rem;color:var(--text-muted);">{{ v.registry.date_of_birth.strftime('%d %b %Y') }}</td>
+            <td>{{ v.registry.gender }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('review_voter', user_id=v.id, action='suspend') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-bad btn-sm">Suspend</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty"><div class="empty-title">No approved voters yet.</div></div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

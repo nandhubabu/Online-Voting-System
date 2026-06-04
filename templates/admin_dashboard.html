@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page">
+
+  <div class="page-head">
+    <div class="page-title">Chief Election Officer</div>
+    <div class="page-sub">{{ current_user.name }} · System Overview</div>
+  </div>
+
+  <!-- Stats Row (Bento) -->
+  <div class="bento" style="margin-bottom:1rem;">
+
+    <div class="card c-3 card-accent">
+      <div class="card-lbl">Registered Voters</div>
+      <div class="stat-num" style="margin-top:.6rem;">{{ stats.total_voters }}</div>
+      <div class="stat-desc">Approved accounts</div>
+    </div>
+
+    <div class="card c-3">
+      <div class="card-lbl">Pending Review</div>
+      <div class="stat-num" style="margin-top:.6rem;color:var(--warning);">{{ stats.pending_voters }}</div>
+      <div class="stat-desc">Awaiting officer approval</div>
+    </div>
+
+    <div class="card c-3">
+      <div class="card-lbl">Total Elections</div>
+      <div class="stat-num" style="margin-top:.6rem;">{{ stats.total_elections }}</div>
+      <div class="stat-desc">All time</div>
+    </div>
+
+    <div class="card c-3">
+      <div class="card-lbl">Active Now</div>
+      <div class="stat-num" style="margin-top:.6rem;color:#a78bfa;">{{ stats.active_elections }}</div>
+      <div class="stat-desc">Elections open for voting</div>
+    </div>
+
+  </div>
+
+  <!-- Quick Actions + Recent Elections -->
+  <div class="bento" style="margin-bottom:1rem;">
+
+    <div class="card c-3">
+      <div class="card-lbl" style="margin-bottom:1.2rem;">Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <a href="{{ url_for('new_election') }}"         class="btn btn-primary">+ New Election</a>
+        <a href="{{ url_for('admin_officers') }}"       class="btn btn-ghost">+ Add Officer</a>
+        <a href="{{ url_for('admin_constituencies') }}" class="btn btn-ghost">+ Constituency</a>
+        <a href="{{ url_for('admin_parties') }}"        class="btn btn-ghost">+ Political Party</a>
+        <a href="{{ url_for('audit_logs') }}"           class="btn btn-ghost">Audit Logs</a>
+      </div>
+    </div>
+
+    <div class="card c-9">
+      <div class="card-hd">
+        <div>
+          <div class="card-lbl">Elections</div>
+          <div class="card-title">Recent Activity</div>
+        </div>
+        <a href="{{ url_for('admin_elections') }}" class="btn btn-ghost btn-sm">View All →</a>
+      </div>
+
+      {% if elections %}
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Election</th><th>Type</th><th>Constituency</th><th>Status</th><th>Votes</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for e in elections %}
+            <tr>
+              <td><strong>{{ e.election_name }}</strong></td>
+              <td style="font-size:.82rem;color:var(--text-muted);">{{ e.election_type }}</td>
+              <td style="font-size:.82rem;">{{ e.constituency.name }}</td>
+              <td><span class="badge b-{{ e.status|lower }}">{{ e.status }}</span></td>
+              <td style="font-weight:600;">{{ e.total_votes }}</td>
+              <td>
+                <div style="display:flex;gap:5px;">
+                  <a href="{{ url_for('edit_election', eid=e.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+                  <a href="{{ url_for('manage_candidates', eid=e.id) }}" class="btn btn-ghost btn-sm">Candidates</a>
+                  {% if e.status == 'Closed' %}
+                  <form method="POST" action="{{ url_for('set_election_status', eid=e.id, status='Published') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-ok btn-sm">Publish Results</button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty">
+        <div class="empty-icon">🗳️</div>
+        <div class="empty-title">No elections yet</div>
+        <a href="{{ url_for('new_election') }}" class="btn btn-primary btn-sm" style="margin-top:1rem;">
+          Create First Election
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Audit Log -->
+  <div class="card">
+    <div class="card-hd">
+      <div>
+        <div class="card-lbl">System Activity</div>
+        <div class="card-title">Recent Audit Log</div>
+      </div>
+      <a href="{{ url_for('audit_logs') }}" class="btn btn-ghost btn-sm">Full Log →</a>
+    </div>
+    {% if logs %}
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Details</th></tr></thead>
+        <tbody>
+          {% for l in logs %}
+          <tr>
+            <td style="font-size:.78rem;color:var(--text-muted);white-space:nowrap;">{{ l.timestamp.strftime('%d %b, %H:%M') }}</td>
+            <td><span class="badge b-{{ 'active' if l.actor_type=='admin' else ('approved' if l.actor_type=='officer' else 'pending') }}">{{ l.actor_type }}</span></td>
+            <td style="font-weight:500;font-size:.84rem;">{{ l.action }}</td>
+            <td style="font-size:.8rem;color:var(--text-muted);">{{ l.details }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty"><div class="empty-title">No audit logs yet.</div></div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

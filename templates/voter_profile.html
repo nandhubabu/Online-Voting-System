@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}My Profile — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:820px;">
+  <div class="page-head">
+    <div class="page-title">My Profile</div>
+    <div class="page-sub">Registered voter information</div>
+  </div>
+
+  <div class="profile-wrap">
+
+    <!-- Avatar card -->
+    <div class="card" style="text-align:center;">
+      <div class="profile-avatar" style="margin:0 auto 1rem;">👤</div>
+      <div class="profile-name">{{ user.full_name }}</div>
+      <div class="profile-email">{{ user.email }}</div>
+      <div style="margin-top:1rem;">
+        <span class="badge b-approved">Active Account</span>
+      </div>
+      <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.76rem;color:var(--text-muted);">
+        Registered on<br>
+        <strong style="color:var(--text);">{{ user.created_at.strftime('%d %B %Y') }}</strong>
+      </div>
+      <div style="margin-top:1.2rem;">
+        <a href="{{ url_for('voter_dashboard') }}" class="btn btn-ghost btn-sm btn-full">← Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Info card -->
+    <div class="card">
+      <div class="card-lbl" style="margin-bottom:1.2rem;">Voter Details</div>
+      <div class="info-item"><span class="info-k">Full Name</span>    <span class="info-v">{{ user.full_name }}</span></div>
+      <div class="info-item"><span class="info-k">Voter ID</span>     <span class="info-v" style="font-family:monospace;letter-spacing:.04em;">{{ user.registry.voter_id_number }}</span></div>
+      <div class="info-item"><span class="info-k">Date of Birth</span><span class="info-v">{{ user.registry.date_of_birth.strftime('%d %B %Y') }}</span></div>
+      <div class="info-item"><span class="info-k">Gender</span>       <span class="info-v">{{ user.registry.gender }}</span></div>
+      <div class="info-item"><span class="info-k">Email</span>        <span class="info-v">{{ user.email }}</span></div>
+      <div class="info-item"><span class="info-k">Constituency</span><span class="info-v">{{ user.registry.constituency.name }}</span></div>
+      <div class="info-item"><span class="info-k">District</span>     <span class="info-v">{{ user.registry.constituency.district }}</span></div>
+      <div class="info-item"><span class="info-k">State</span>        <span class="info-v">{{ user.registry.constituency.state }}</span></div>
+      {% if user.registry.address %}
+      <div class="info-item"><span class="info-k">Address</span>      <span class="info-v">{{ user.registry.address }}</span></div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

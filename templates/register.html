@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Register — ElectVote{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+
+  <!-- LEFT PANEL -->
+  <div class="auth-left">
+    <div><span class="brand"><span class="brand-dot"></span>ElectVote</span></div>
+
+    <div>
+      <div class="auth-headline">Register to<br><em>Vote</em> Today.</div>
+      <p class="auth-desc">Your government Voter ID is required. An Election Officer will verify and activate your account.</p>
+      <div class="auth-feats">
+        <div class="auth-feat"><span class="feat-dot"></span>Step 1 — Enter Voter ID &amp; Date of Birth</div>
+        <div class="auth-feat"><span class="feat-dot"></span>Step 2 — System verifies against registry</div>
+        <div class="auth-feat"><span class="feat-dot"></span>Step 3 — Officer approves your application</div>
+        <div class="auth-feat"><span class="feat-dot"></span>Step 4 — Login and start voting</div>
+      </div>
+    </div>
+
+    <div class="auth-footer">© 2025 Election Commission of India</div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="auth-right">
+    <div class="auth-box">
+      <div class="auth-box-title">Create Account</div>
+      <div class="auth-box-sub">Voter registration — must match government records</div>
+
+      <form method="POST" action="{{ url_for('register') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+          <label class="form-label">Voter ID Number</label>
+          <input type="text" name="voter_id" class="form-input"
+                 placeholder="e.g. ABC1234567" required maxlength="20"
+                 style="text-transform:uppercase">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" name="dob" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-input"
+                 placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-input"
+                 placeholder="Min. 6 characters" required minlength="6">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" name="confirm_password" class="form-input"
+                 placeholder="Re-enter password" required minlength="6">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Submit Registration</button>
+      </form>
+
+      <div class="auth-sep">already registered?</div>
+      <a href="{{ url_for('login') }}" class="btn btn-ghost btn-full">Sign In</a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

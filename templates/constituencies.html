@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Constituencies — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head"><div class="page-title">Constituencies</div></div>
+
+  <div class="bento">
+
+    <!-- Add Form -->
+    <div class="card c-4">
+      <div class="card-lbl" style="margin-bottom:1.2rem;">Add Constituency</div>
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" name="name" class="form-input" placeholder="e.g. Chennai North" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">District</label>
+          <input type="text" name="district" class="form-input" placeholder="e.g. Chennai" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">State</label>
+          <input type="text" name="state" class="form-input" placeholder="e.g. Tamil Nadu" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Add</button>
+      </form>
+    </div>
+
+    <!-- List -->
+    <div class="card c-8">
+      <div class="card-lbl" style="margin-bottom:1.2rem;">All Constituencies</div>
+      {% if constituencies %}
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>District</th><th>State</th></tr></thead>
+          <tbody>
+            {% for c in constituencies %}
+            <tr>
+              <td style="color:var(--text-muted);font-size:.8rem;">{{ c.id }}</td>
+              <td><strong>{{ c.name }}</strong></td>
+              <td style="font-size:.85rem;">{{ c.district }}</td>
+              <td style="font-size:.85rem;">{{ c.state }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty"><div class="empty-title">No constituencies yet.</div></div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

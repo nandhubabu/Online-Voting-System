@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Elections — ElectVote{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end;">
+    <div>
+      <div class="page-title">Elections</div>
+      <div class="page-sub">Manage all elections</div>
+    </div>
+    <a href="{{ url_for('new_election') }}" class="btn btn-primary">+ New Election</a>
+  </div>
+
+  <div class="card">
+    {% if elections %}
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Election Name</th><th>Type</th><th>Constituency</th>
+            <th>Start</th><th>End</th><th>Status</th><th>Votes</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in elections %}
+          <tr>
+            <td><strong>{{ e.election_name }}</strong></td>
+            <td style="font-size:.82rem;color:var(--text-muted);">{{ e.election_type }}</td>
+            <td>{{ e.constituency.name }}</td>
+            <td style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;">{{ e.start_datetime.strftime('%d %b %Y') }}</td>
+            <td style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;">{{ e.end_datetime.strftime('%d %b %Y') }}</td>
+            <td><span class="badge b-{{ e.status|lower }}">{{ e.status }}</span></td>
+            <td style="font-weight:600;">{{ e.total_votes }}</td>
+            <td>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <a href="{{ url_for('edit_election', eid=e.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+                <a href="{{ url_for('manage_candidates', eid=e.id) }}" class="btn btn-ghost btn-sm">Candidates</a>
+
+                {% if e.status == 'Draft' %}
+                <form method="POST" action="{{ url_for('set_election_status', eid=e.id, status='Scheduled') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ghost btn-sm">→ Schedule</button>
+                </form>
+                {% elif e.status == 'Scheduled' %}
+                <form method="POST" action="{{ url_for('set_election_status', eid=e.id, status='Active') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ok btn-sm">→ Activate</button>
+                </form>
+                {% elif e.status == 'Active' %}
+                <form method="POST" action="{{ url_for('set_election_status', eid=e.id, status='Closed') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-bad btn-sm">→ Close</button>
+                </form>
+                {% elif e.status == 'Closed' %}
+                <form method="POST" action="{{ url_for('set_election_status', eid=e.id, status='Published') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ok btn-sm">Publish Results</button>
+                </form>
+                {% elif e.status == 'Published' %}
+                <a href="{{ url_for('election_results', election_id=e.id) }}" class="btn btn-ghost btn-sm">View Results</a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon">🗳️</div>
+      <div class="empty-title">No elections yet</div>
+      <a href="{{ url_for('new_election') }}" class="btn btn-primary btn-sm" style="margin-top:1rem;">Create First Election</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

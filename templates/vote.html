@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Vote — {{ election.election_name }}{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:820px;">
+
+  <a href="{{ url_for('voter_dashboard') }}" class="btn btn-ghost btn-sm"
+     style="margin-bottom:1.5rem;">← Back to Dashboard</a>
+
+  <div class="page-head">
+    <div class="page-title">{{ election.election_name }}</div>
+    <div class="page-sub" style="display:flex;gap:.8rem;align-items:center;margin-top:6px;">
+      <span class="badge b-{{ election.status|lower }}">{{ election.status }}</span>
+      <span>{{ election.start_datetime.strftime('%d %b %Y') }} – {{ election.end_datetime.strftime('%d %b %Y') }}</span>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="card" style="margin-bottom:1rem;">
+    <div class="card-lbl" style="margin-bottom:.6rem;">Instructions</div>
+    <ul style="color:var(--text-muted);font-size:.83rem;padding-left:1.2rem;line-height:2.1;">
+      <li>Select exactly <strong style="color:var(--text)">one candidate</strong> below.</li>
+      <li>Review your choice in the confirmation dialog before submitting.</li>
+      <li>Your vote is <strong style="color:var(--text)">final</strong> — it cannot be changed after submission.</li>
+      <li>Ballot secrecy is guaranteed. No one can see your choice.</li>
+    </ul>
+  </div>
+
+  <!-- Voting form -->
+  <form id="vote-form" method="POST"
+        action="{{ url_for('cast_vote', election_id=election.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    {% if candidates %}
+    <div class="cand-grid">
+      {% for c in candidates %}
+      <label class="cand-card" for="cand-{{ c.id }}">
+        <div class="cand-check">✓</div>
+        <input type="radio" id="cand-{{ c.id }}" name="candidate_id" value="{{ c.id }}">
+        <div class="cand-avatar">👤</div>
+        <div class="cand-name">{{ c.full_name }}</div>
+        <div class="cand-party">
+          {{ c.party.party_name if c.party else 'Independent' }}
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+
+    <div style="display:flex;gap:.8rem;justify-content:flex-end;margin-top:1.5rem;">
+      <a href="{{ url_for('voter_dashboard') }}" class="btn btn-ghost">Cancel</a>
+      <button type="button" id="confirm-btn" class="btn btn-primary">
+        Review &amp; Confirm →
+      </button>
+    </div>
+
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon">👤</div>
+      <div class="empty-title">No candidates yet</div>
+      <div class="empty-sub">No approved candidates for this election.</div>
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Confirm Modal -->
+<div id="vote-modal" class="modal-bg">
+  <div class="modal-box">
+    <div class="card-lbl" style="margin-bottom:.8rem;">Confirm Vote</div>
+    <div class="modal-title">You are voting for:</div>
+    <div class="modal-pick" id="picked-name"></div>
+    <div class="modal-sub">
+      This action is <strong style="color:var(--text)">irreversible</strong>.
+      Once submitted your vote cannot be changed.
+    </div>
+    <div class="modal-actions">
+      <button id="cancel-btn" class="btn btn-ghost" style="flex:1;">Go Back</button>
+      <button id="submit-btn" class="btn btn-primary" style="flex:1;">Confirm ✓</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

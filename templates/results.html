@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Results — {{ election.election_name }}{% endblock %}
+
+{% block content %}
+<div class="page" style="max-width:760px;">
+
+  <div class="page-head">
+    <div class="page-title">Election Results</div>
+    <div class="page-sub" style="display:flex;gap:.8rem;align-items:center;margin-top:6px;">
+      {{ election.election_name }}
+      <span class="badge b-published">Published</span>
+    </div>
+  </div>
+
+  <!-- Winner Banner -->
+  {% if results %}
+  <div class="card card-accent" style="margin-bottom:1rem;text-align:center;padding:2rem;">
+    <div class="card-lbl" style="margin-bottom:.6rem;">🏆 Winner</div>
+    <div style="font-size:1.5rem;font-weight:700;letter-spacing:-.02em;">
+      {{ results[0].candidate.full_name }}
+    </div>
+    <div style="font-size:.85rem;color:var(--text-muted);margin-top:4px;">
+      {{ results[0].candidate.party.party_name if results[0].candidate.party else 'Independent' }}
+      &nbsp;·&nbsp;
+      {{ results[0].votes }} votes ({{ results[0].pct }}%)
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Results Card -->
+  <div class="card">
+    <div class="card-hd" style="margin-bottom:1.5rem;">
+      <div>
+        <div class="card-lbl">Vote Breakdown</div>
+        <div class="card-title">{{ total }} Total Votes Cast</div>
+      </div>
+    </div>
+
+    {% for r in results %}
+    <div class="result-row">
+      <div class="result-row-top">
+        <div>
+          <span class="result-name">{{ r.candidate.full_name }}</span>
+          <span style="font-size:.78rem;color:var(--text-muted);margin-left:.5rem;">
+            {{ r.candidate.party.party_name if r.candidate.party else 'Independent' }}
+          </span>
+        </div>
+        <div class="result-pct">{{ r.votes }} votes · {{ r.pct }}%</div>
+      </div>
+      <div class="result-track">
+        <div class="result-fill {{ 'winner' if loop.first }}"
+             data-width="{{ r.pct }}"></div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if not results %}
+    <div class="empty"><div class="empty-title">No results to show.</div></div>
+    {% endif %}
+  </div>
+
+  <div style="margin-top:1.5rem;">
+    {% if current_user.is_authenticated %}
+      {% if session.get('role') == 'voter' %}
+        <a href="{{ url_for('voter_dashboard') }}" class="btn btn-ghost btn-sm">← Dashboard</a>
+      {% elif session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin_elections') }}" class="btn btn-ghost btn-sm">← Elections</a>
+      {% endif %}
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-ghost btn-sm">← Sign In</a>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

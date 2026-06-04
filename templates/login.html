@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Sign In — ElectVote{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+
+  <!-- LEFT PANEL -->
+  <div class="auth-left">
+    <div><span class="brand"><span class="brand-dot"></span>ElectVote</span></div>
+
+    <div>
+      <div class="auth-headline">
+        Your Vote.<br>Your <em>Voice</em>.<br>Secured.
+      </div>
+      <p class="auth-desc">
+        India's official online election portal. Cast your ballot securely from anywhere, anytime.
+      </p>
+      <div class="auth-feats">
+        <div class="auth-feat"><span class="feat-dot"></span>End-to-end ballot secrecy</div>
+        <div class="auth-feat"><span class="feat-dot"></span>Government registry verification</div>
+        <div class="auth-feat"><span class="feat-dot"></span>Real-time election results</div>
+        <div class="auth-feat"><span class="feat-dot"></span>Multi-role access control</div>
+      </div>
+    </div>
+
+    <div class="auth-footer">© 2025 Election Commission of India</div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="auth-right">
+    <div class="auth-box">
+      <div class="auth-box-title">Welcome back</div>
+      <div class="auth-box-sub">Select your role and sign in</div>
+
+      <div class="role-tabs">
+        <button class="role-tab active" data-role="voter"   type="button">Voter</button>
+        <button class="role-tab"        data-role="officer" type="button">Officer</button>
+        <button class="role-tab"        data-role="admin"   type="button">CEO</button>
+      </div>
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="role" id="role-input" value="voter">
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-input"
+                 placeholder="you@example.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-input"
+                 placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+      </form>
+
+      <div class="auth-sep">or</div>
+
+      <a href="{{ url_for('register') }}" class="btn btn-ghost btn-full">
+        Register as a Voter
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
