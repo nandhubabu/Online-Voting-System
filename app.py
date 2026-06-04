@@ -40,6 +40,22 @@ login_manager.login_message = 'Please log in to access this page.'
 login_manager.login_message_category = 'warning'
 
 
+# Auto-initialize database tables and default admin account on startup
+with app.app_context():
+    db.create_all()
+    try:
+        if not ChiefElectionOfficer.query.filter_by(email='admin@election.gov.in').first():
+            ceo = ChiefElectionOfficer(
+                name='Chief Election Officer',
+                email='admin@election.gov.in'
+            )
+            ceo.set_password('Admin@123')
+            db.session.add(ceo)
+            db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # User Loader (multi-role)
 # ─────────────────────────────────────────────────────────────────────────────
