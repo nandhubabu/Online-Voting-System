@@ -192,7 +192,7 @@ def register():
             flash('This Voter ID is already linked to an account.', 'danger')
             return render_template('register.html')
 
-        user = User(voter_registry_id=registry.id, email=email)  # type: ignore
+        user = User(voter_registry_id=registry.id, email=email)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -271,7 +271,7 @@ def cast_vote(election_id):
             flash('Invalid candidate.', 'danger')
             return render_template('vote.html', election=election, candidates=candidates)
 
-        vote = Vote(election_id=election_id, candidate_id=candidate_id, voter_id=current_user.id)  # type: ignore
+        vote = Vote(election_id=election_id, candidate_id=candidate_id, voter_id=current_user.id)
         db.session.add(vote)
         db.session.commit()
 
@@ -399,13 +399,13 @@ def admin_elections():
 def new_election():
     constituencies = Constituency.query.all()
     if request.method == 'POST':
-        e = Election(  # type: ignore
-            election_name   = request.form['election_name'],
-            election_type   = request.form['election_type'],
-            constituency_id = int(request.form['constituency_id']),
-            start_datetime  = datetime.strptime(request.form['start_datetime'], '%Y-%m-%dT%H:%M'),
-            end_datetime    = datetime.strptime(request.form['end_datetime'],   '%Y-%m-%dT%H:%M'),
-            status          = 'Draft'
+        e = Election(
+            election_name=request.form['election_name'],
+            election_type=request.form['election_type'],
+            constituency_id=int(request.form['constituency_id']),
+            start_datetime=datetime.strptime(request.form['start_datetime'], '%Y-%m-%dT%H:%M'),
+            end_datetime=datetime.strptime(request.form['end_datetime'], '%Y-%m-%dT%H:%M'),
+            status='Draft'
         )
         db.session.add(e)
         db.session.commit()
@@ -463,12 +463,12 @@ def manage_candidates(eid):
     candidates = Candidate.query.filter_by(election_id=eid).all()
 
     if request.method == 'POST':
-        c = Candidate(  # type: ignore
-            full_name        = request.form['full_name'],
-            party_id         = int(request.form['party_id']) if request.form.get('party_id') else None,
-            constituency_id  = election.constituency_id,
-            election_id      = eid,
-            candidate_status = 'Approved'
+        c = Candidate(
+            full_name=request.form['full_name'],
+            party_id=int(request.form['party_id']) if request.form.get('party_id') else None,
+            constituency_id=election.constituency_id,
+            election_id=eid,
+            candidate_status='Approved'
         )
         db.session.add(c)
         db.session.commit()
@@ -487,10 +487,10 @@ def manage_candidates(eid):
 @admin_required
 def admin_constituencies():
     if request.method == 'POST':
-        c = Constituency(  # type: ignore
-            name     = request.form['name'],
-            district = request.form['district'],
-            state    = request.form['state']
+        c = Constituency(
+            name=request.form['name'],
+            district=request.form['district'],
+            state=request.form['state']
         )
         db.session.add(c)
         db.session.commit()
@@ -507,10 +507,10 @@ def admin_constituencies():
 @admin_required
 def admin_parties():
     if request.method == 'POST':
-        p = Party(  # type: ignore
-            party_name  = request.form['party_name'],
-            symbol      = request.form.get('symbol', ''),
-            description = request.form.get('description', '')
+        p = Party(
+            party_name=request.form['party_name'],
+            symbol=request.form.get('symbol', ''),
+            description=request.form.get('description', '')
         )
         db.session.add(p)
         db.session.commit()
@@ -528,11 +528,10 @@ def admin_parties():
 def admin_officers():
     constituencies = Constituency.query.all()
     if request.method == 'POST':
-        o = ElectionOfficer(  # type: ignore
-            name            = request.form['name'],
-            email           = request.form['email'],
-            constituency_id = int(request.form['constituency_id'])
-                              if request.form.get('constituency_id') else None
+        o = ElectionOfficer(
+            name=request.form['name'],
+            email=request.form['email'],
+            constituency_id=int(request.form['constituency_id']) if request.form.get('constituency_id') else None
         )
         o.set_password(request.form['password'])
         db.session.add(o)

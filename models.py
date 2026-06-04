@@ -13,9 +13,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
 
 
+# ── Base Model with Custom Init for Linters ───────────────────────────────────
+
+class BaseModel(db.Model):
+    __abstract__ = True
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 # ── Constituency ──────────────────────────────────────────────────────────────
 
-class Constituency(db.Model):
+class Constituency(BaseModel):
     __tablename__ = 'constituencies'
 
     id       = db.Column(db.Integer, primary_key=True)
@@ -33,7 +42,7 @@ class Constituency(db.Model):
 
 # ── Political Party ───────────────────────────────────────────────────────────
 
-class Party(db.Model):
+class Party(BaseModel):
     __tablename__ = 'parties'
 
     id          = db.Column(db.Integer, primary_key=True)
@@ -49,7 +58,7 @@ class Party(db.Model):
 
 # ── Voter Registry (pre-loaded government list) ───────────────────────────────
 
-class VoterRegistry(db.Model):
+class VoterRegistry(BaseModel):
     __tablename__ = 'voter_registry'
 
     id              = db.Column(db.Integer, primary_key=True)
@@ -69,7 +78,7 @@ class VoterRegistry(db.Model):
 
 # ── Voter User Account ────────────────────────────────────────────────────────
 
-class User(UserMixin, db.Model):
+class User(UserMixin, BaseModel):
     __tablename__ = 'users'
 
     id                = db.Column(db.Integer, primary_key=True)
@@ -106,7 +115,7 @@ class User(UserMixin, db.Model):
 
 # ── Election Officer ──────────────────────────────────────────────────────────
 
-class ElectionOfficer(UserMixin, db.Model):
+class ElectionOfficer(UserMixin, BaseModel):
     __tablename__ = 'election_officers'
 
     id              = db.Column(db.Integer, primary_key=True)
@@ -127,7 +136,7 @@ class ElectionOfficer(UserMixin, db.Model):
 
 # ── Chief Election Officer (Super Admin) ──────────────────────────────────────
 
-class ChiefElectionOfficer(UserMixin, db.Model):
+class ChiefElectionOfficer(UserMixin, BaseModel):
     __tablename__ = 'chief_election_officers'
 
     id            = db.Column(db.Integer, primary_key=True)
@@ -147,7 +156,7 @@ class ChiefElectionOfficer(UserMixin, db.Model):
 
 # ── Election ──────────────────────────────────────────────────────────────────
 
-class Election(db.Model):
+class Election(BaseModel):
     __tablename__ = 'elections'
 
     id              = db.Column(db.Integer, primary_key=True)
@@ -184,7 +193,7 @@ class Election(db.Model):
 
 # ── Candidate ─────────────────────────────────────────────────────────────────
 
-class Candidate(db.Model):
+class Candidate(BaseModel):
     __tablename__ = 'candidates'
 
     id               = db.Column(db.Integer, primary_key=True)
@@ -210,7 +219,7 @@ class Candidate(db.Model):
 
 # ── Vote ──────────────────────────────────────────────────────────────────────
 
-class Vote(db.Model):
+class Vote(BaseModel):
     __tablename__  = 'votes'
     __table_args__ = (
         db.UniqueConstraint('voter_id', 'election_id', name='uq_one_vote_per_election'),
@@ -228,7 +237,7 @@ class Vote(db.Model):
 
 # ── Audit Log ─────────────────────────────────────────────────────────────────
 
-class AuditLog(db.Model):
+class AuditLog(BaseModel):
     __tablename__ = 'audit_logs'
 
     id         = db.Column(db.Integer, primary_key=True)
