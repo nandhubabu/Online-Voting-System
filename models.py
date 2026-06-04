@@ -66,7 +66,7 @@ class VoterRegistry(BaseModel):
     full_name       = db.Column(db.String(200), nullable=False)
     date_of_birth   = db.Column(db.Date, nullable=False)
     constituency_id = db.Column(db.Integer, db.ForeignKey('constituencies.id'), nullable=False)
-    gender          = db.Column(db.Enum('Male', 'Female', 'Other'), nullable=False)
+    gender          = db.Column(db.Enum('Male', 'Female', 'Other', name='gender_types'), nullable=False)
     address         = db.Column(db.Text)
     is_active       = db.Column(db.Boolean, default=True)
 
@@ -87,7 +87,7 @@ class User(UserMixin, BaseModel):
     email             = db.Column(db.String(180), nullable=False, unique=True, index=True)
     password_hash     = db.Column(db.String(256), nullable=False)
     account_status    = db.Column(
-        db.Enum('pending', 'approved', 'rejected', 'suspended'),
+        db.Enum('pending', 'approved', 'rejected', 'suspended', name='account_status_types'),
         default='pending', nullable=False
     )
     created_at        = db.Column(db.DateTime, default=datetime.utcnow)
@@ -162,14 +162,14 @@ class Election(BaseModel):
     id              = db.Column(db.Integer, primary_key=True)
     election_name   = db.Column(db.String(250), nullable=False)
     election_type   = db.Column(
-        db.Enum('Parliamentary', 'Assembly', 'Municipal', 'Panchayat'),
+        db.Enum('Parliamentary', 'Assembly', 'Municipal', 'Panchayat', name='election_types'),
         nullable=False
     )
     constituency_id = db.Column(db.Integer, db.ForeignKey('constituencies.id'), nullable=False)
     start_datetime  = db.Column(db.DateTime, nullable=False)
     end_datetime    = db.Column(db.DateTime, nullable=False)
     status          = db.Column(
-        db.Enum('Draft', 'Scheduled', 'Active', 'Closed', 'Published'),
+        db.Enum('Draft', 'Scheduled', 'Active', 'Closed', 'Published', name='election_status_types'),
         default='Draft', nullable=False
     )
     created_at      = db.Column(db.DateTime, default=datetime.utcnow)
@@ -202,7 +202,7 @@ class Candidate(BaseModel):
     constituency_id  = db.Column(db.Integer, db.ForeignKey('constituencies.id'), nullable=False)
     election_id      = db.Column(db.Integer, db.ForeignKey('elections.id'), nullable=False)
     candidate_status = db.Column(
-        db.Enum('Pending', 'Approved', 'Rejected'),
+        db.Enum('Pending', 'Approved', 'Rejected', name='candidate_status_types'),
         default='Pending', nullable=False
     )
 
