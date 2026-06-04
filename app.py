@@ -155,8 +155,9 @@ def login():
                       'Please wait for Election Officer approval.', 'warning')
                 return redirect(url_for('login'))
 
+            session.permanent = True
             session['role'] = role
-            login_user(user_obj)
+            login_user(user_obj, remember=True)
             log_action(role, user_obj.id, 'Login', email)
 
             if role == 'voter':

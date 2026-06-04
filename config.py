@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,3 +17,5 @@ elif db_url.startswith('postgres://'):
 SQLALCHEMY_DATABASE_URI = db_url
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 WTF_CSRF_ENABLED = True
+PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+
