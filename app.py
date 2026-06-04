@@ -48,11 +48,11 @@ login_manager.login_message_category = 'warning'
 def load_user(user_id):
     role = session.get('role')
     if role == 'voter':
-        return User.query.get(int(user_id))
+        return db.session.get(User, int(user_id))
     if role == 'officer':
-        return ElectionOfficer.query.get(int(user_id))
+        return db.session.get(ElectionOfficer, int(user_id))
     if role == 'admin':
-        return ChiefElectionOfficer.query.get(int(user_id))
+        return db.session.get(ChiefElectionOfficer, int(user_id))
     return None
 
 
@@ -266,7 +266,7 @@ def cast_vote(election_id):
             flash('Please select a candidate.', 'danger')
             return render_template('vote.html', election=election, candidates=candidates)
 
-        candidate = Candidate.query.get(candidate_id)
+        candidate = db.session.get(Candidate, candidate_id)
         if not candidate or candidate.election_id != election_id:
             flash('Invalid candidate.', 'danger')
             return render_template('vote.html', election=election, candidates=candidates)
