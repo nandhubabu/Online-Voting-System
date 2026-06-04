@@ -58,6 +58,7 @@
           </select>
         </div>
 
+        {% if states %}
         <div class="form-group">
           <label class="form-label">State</label>
           <select id="state_select" class="form-input" required style="background: var(--surface-1); color: var(--text-base);">
@@ -77,6 +78,12 @@
             {% endfor %}
           </select>
         </div>
+        {% else %}
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center;">
+          <div style="font-weight: 600; color: #ef4444; margin-bottom: 0.25rem;">No Constituencies Available</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);">Please log in as Admin first to create constituencies and states under the administration panel.</div>
+        </div>
+        {% endif %}
 
         <div class="form-group">
           <label class="form-label">Residential Address</label>
@@ -101,7 +108,7 @@
                  placeholder="Re-enter password" required minlength="6">
         </div>
 
-        <button type="submit" class="btn btn-primary btn-full">Submit Registration</button>
+        <button type="submit" class="btn btn-primary btn-full" {% if not states %}disabled{% endif %}>Submit Registration</button>
       </form>
 
       <div class="auth-sep">already registered?</div>
