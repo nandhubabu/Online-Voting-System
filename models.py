@@ -179,7 +179,7 @@ class Election(BaseModel):
 
     @property
     def is_currently_active(self):
-        now = datetime.utcnow()
+        now = datetime.now()
         return (self.status == 'Active' and
                 self.start_datetime <= now <= self.end_datetime)
 
